@@ -8,9 +8,7 @@ def get_connection():
     """Create and return a SQLite database connection."""
     return sqlite3.connect(DB_NAME)
 
-# ------------------------
 # Crash Table
-# ------------------------
 def create_crash_table():
     """Create the crashes table if it doesn't exist."""
     conn = get_connection()
@@ -96,7 +94,7 @@ def import_crash_csv(file_path):
     
     conn.commit()
     conn.close()
-
+    
 def get_crashes(limit=10):
     """Return a few rows from crashes for inspection."""
     conn = get_connection()
@@ -106,9 +104,7 @@ def get_crashes(limit=10):
     conn.close()
     return rows
 
-# ------------------------
 # Population Table
-# ------------------------
 def create_population_table():
     """Create the population table if it doesn't exist."""
     conn = get_connection()
@@ -124,6 +120,15 @@ def create_population_table():
     
     conn.commit()
     conn.close()
+    
+def get_population(limit=10):
+    """Return a few rows from population for inspection."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(f'SELECT * FROM population LIMIT {limit}')
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
 
 def import_population_csv(file_path):
     """Import population data from CSV into the population table."""
@@ -154,11 +159,32 @@ def import_population_csv(file_path):
     conn.commit()
     conn.close()
 
-def get_population(limit=10):
-    """Return a few rows from population for inspection."""
+# calculate municipal crashes
+def create_crashes_per_100k():
+    """calculate crashes per 100k in each municipality"""
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute(f'SELECT * FROM population LIMIT {limit}')
+    cursor.execute("DROP VIEW IF EXISTS crashes_per_100k")
+    cursor.execute("""
+                   CREATE VIEW crashes_per_100k AS
+                    SELECT 
+                        c.municipality_name,
+                        COUNT(*) AS total_crashes,
+                        p.total AS population,
+                        (COUNT(*) * 100000.0 / p.total) AS crashes_per_100k
+                    FROM crashes AS c
+                    JOIN population AS p
+                    ON UPPER(c.municipality_name) = p.municipality
+                    GROUP BY c.municipality_name""")
+    
+    conn.commit()
+    conn.close()
+    
+def get_crashes_per_100k(limit=10):
+    """Return head rows from crashes per 100k for inspection."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(f'SELECT * FROM crashes_per_100k LIMIT {limit}')
     rows = cursor.fetchall()
     conn.close()
     return rows

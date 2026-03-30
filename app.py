@@ -3,9 +3,9 @@ import db
 def main():
     #create the population and crash tables
     db.create_crash_table()
-    db.import_crash_csv('Southern Interior_Full Data_data.csv')
+    db.import_crash_csv('301_traffic\Southern Interior_Full Data_data.csv')
     
-    db.import_population_csv('Population_Projections.csv')
+    db.import_population_csv('301_traffic\Population_Projections.csv')
 
     
     # calculate crashes per 100k in each munipcipality

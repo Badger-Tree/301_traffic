@@ -13,7 +13,7 @@ def create_crash_table():
     """Create the crashes table if it doesn't exist."""
     conn = get_connection()
     cursor = conn.cursor()
-    
+    cursor.execute("DROP TABLE IF EXISTS crashes")
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS crashes (
         crash_breakdown_2 TEXT,
@@ -94,42 +94,24 @@ def import_crash_csv(file_path):
     
     conn.commit()
     conn.close()
-    
-def get_crashes(limit=10):
-    """Return a few rows from crashes for inspection."""
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute(f'SELECT * FROM crashes LIMIT {limit}')
-    rows = cursor.fetchall()
-    conn.close()
-    return rows
 
 # Population Table
 def create_population_table():
     """Create the population table if it doesn't exist."""
     conn = get_connection()
     cursor = conn.cursor()
-    
-    cursor.execute('''
+    cursor.execute("DROP TABLE IF EXISTS population")
+    cursor.execute("""
     CREATE TABLE IF NOT EXISTS population (
         region TEXT,
         municipality TEXT,
         total INTEGER
     )
-    ''')
+    """)
     
     conn.commit()
     conn.close()
     
-def get_population(limit=10):
-    """Return a few rows from population for inspection."""
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute(f'SELECT * FROM population LIMIT {limit}')
-    rows = cursor.fetchall()
-    conn.close()
-    return rows
-
 def import_population_csv(file_path):
     """Import population data from CSV into the population table."""
     conn = get_connection()
@@ -164,27 +146,29 @@ def create_crashes_per_100k():
     """calculate crashes per 100k in each municipality"""
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DROP VIEW IF EXISTS crashes_per_100k")
+    # cursor.execute("DROP VIEW IF EXISTS crashes_per_100k")
+    cursor.execute("DROP TABLE IF EXISTS crashes_per_100k")
     cursor.execute("""
-                   CREATE VIEW crashes_per_100k AS
+                   CREATE TABLE crashes_per_100k AS
                     SELECT 
                         c.municipality_name,
                         COUNT(*) AS total_crashes,
+                        (CASE WHEN c.animal_flag = 'Yes' THEN 1 ELSE 0 END) AS animal_flag_yes_count,
+                        SUM(CASE WHEN c.cyclist_flag = 'Yes' THEN 1 ELSE 0 END) AS cyclist_flag_yes_count,
+                        SUM(CASE WHEN c.heavy_veh_flag = 'Yes' THEN 1 ELSE 0 END) AS heavy_veh_flag_yes_count,
+                        SUM(CASE WHEN c.intersection_crash = 'Yes' THEN 1 ELSE 0 END) AS intersection_crash_count,                        
+                        SUM(CASE WHEN c.motorcycle_flag = 'Yes' THEN 1 ELSE 0 END) AS motorcycle_flag_yes_count,  
+                        SUM(CASE WHEN c.parked_vehicle_flag = 'Yes' THEN 1 ELSE 0 END) AS parked_vehicle_flag_yes_count,
+                        SUM(CASE WHEN c.parking_lot_flag = 'Yes' THEN 1 ELSE 0 END) AS parking_lot_flag_yes_count,
+                        SUM(CASE WHEN c.pedestrian_flag = 'Yes' THEN 1 ELSE 0 END) AS pedestrian_flag_yes_count,
+                        AVG(total_victims) as average_victims,
                         p.total AS population,
                         (COUNT(*) * 100000.0 / p.total) AS crashes_per_100k
                     FROM crashes AS c
                     JOIN population AS p
                     ON UPPER(c.municipality_name) = p.municipality
-                    GROUP BY c.municipality_name""")
+                    GROUP BY c.municipality_name, p.total""")
     
     conn.commit()
     conn.close()
-    
-def get_crashes_per_100k(limit=10):
-    """Return head rows from crashes per 100k for inspection."""
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute(f'SELECT * FROM crashes_per_100k LIMIT {limit}')
-    rows = cursor.fetchall()
-    conn.close()
-    return rows
+#TODO: the crashes_per_100k table shows counts of crash flags, but not standardized to 100k

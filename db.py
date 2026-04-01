@@ -1,5 +1,6 @@
 import sqlite3
 import csv
+import pandas as pd
 
 DB_NAME = 'database.db'  # your SQLite database file
 
@@ -95,6 +96,15 @@ def import_crash_csv(file_path):
     conn.commit()
     conn.close()
 
+# return crash table
+def get_crashes():
+    """this method returns the crashes table as a dataframe"""
+    conn = get_connection()
+    df = pd.read_sql("SELECT * FROM crashes", conn)
+    conn.close()
+    return df
+
+
 # Population Table
 def create_population_table():
     """Create the population table if it doesn't exist."""
@@ -102,12 +112,12 @@ def create_population_table():
     cursor = conn.cursor()
     cursor.execute("DROP TABLE IF EXISTS population")
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS population (
-        region TEXT,
-        municipality TEXT,
-        total INTEGER
-    )
-    """)
+                    CREATE TABLE IF NOT EXISTS population (
+                        region TEXT,
+                        municipality TEXT,
+                        total INTEGER
+                    )
+                    """)
     
     conn.commit()
     conn.close()
@@ -140,6 +150,14 @@ def import_population_csv(file_path):
     
     conn.commit()
     conn.close()
+    
+# return population table
+def get_populations():
+    """this method returns the population table as a dataframe"""
+    conn = get_connection()
+    df = pd.read_sql("SELECT * FROM population", conn)
+    conn.close()
+    return df
 
 def create_regional_crash_summaries():
     """calculate summaries of crash data according to municipality"""
@@ -166,6 +184,13 @@ def create_regional_crash_summaries():
     
     conn.commit()
     conn.close()
+    
+def get_crashes_per_municipality():
+    """this method returns the crash data aggregated by municipality as a dataframe"""
+    conn = get_connection()
+    df = pd.read_sql("SELECT * FROM crashes_per_municipality", conn)
+    conn.close()
+    return df
 
 # calculate municipal crashes
 def create_crashes_per_100k():
@@ -197,3 +222,10 @@ def create_crashes_per_100k():
     
     conn.commit()
     conn.close()
+
+def get_crashes_per_100k():
+    """this method returns the crash data aggregated by population and standardized as a dataframe"""
+    conn = get_connection()
+    df = pd.read_sql("SELECT * FROM crashes_per_100k", conn)
+    conn.close()
+    return df

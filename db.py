@@ -14,7 +14,7 @@ def create_crash_table():
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("DROP TABLE IF EXISTS crashes")
-    cursor.execute('''
+    cursor.execute("""
     CREATE TABLE IF NOT EXISTS crashes (
         crash_breakdown_2 TEXT,
         date_of_loss_year INTEGER,
@@ -46,7 +46,7 @@ def create_crash_table():
         municipality_with_boundary TEXT,
         cross_street_full_name TEXT
     )
-    ''')
+    """)
     
     conn.commit()
     conn.close()
@@ -131,12 +131,38 @@ def import_population_csv(file_path):
         
         for row in reader:
             region = row[0].strip()
-            municipality = row[1].strip().upper()  # uppercase
-            total = int(row[5].replace(',', '').strip())  # remove commas
+            municipality = row[1].strip().upper()
+            total = int(row[5].replace(',', '').strip()) #this is to take the comma out of the popularion field so it can be an integer
             cursor.execute('''
                 INSERT INTO population (region, municipality, total)
                 VALUES (?, ?, ?)
             ''', [region, municipality, total])
+    
+    conn.commit()
+    conn.close()
+
+def create_regional_crash_summaries():
+    """calculate summaries of crash data according to municipality"""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DROP TABLE IF EXISTS crashes_per_municipality")
+    cursor.execute('''
+                   CREATE TABLE crashes_per_municipality AS
+                    SELECT 
+                        c.municipality_name,
+                        COUNT(*) AS total_crashes,
+                        SUM(CASE WHEN c.crash_severity = 'CASUALTY CRASH' THEN 1 ELSE 0 END) AS casualty_accident_counts,
+                        SUM(CASE WHEN c.animal_flag = 'Yes' THEN 1 ELSE 0 END) AS animal_flag_yes_count,
+                        SUM(CASE WHEN c.cyclist_flag = 'Yes' THEN 1 ELSE 0 END) AS cyclist_flag_yes_count,
+                        SUM(CASE WHEN c.heavy_veh_flag = 'Yes' THEN 1 ELSE 0 END) AS heavy_veh_flag_yes_count,
+                        SUM(CASE WHEN c.intersection_crash = 'Yes' THEN 1 ELSE 0 END) AS intersection_crash_count,                        
+                        SUM(CASE WHEN c.motorcycle_flag = 'Yes' THEN 1 ELSE 0 END) AS motorcycle_flag_yes_count,  
+                        SUM(CASE WHEN c.parked_vehicle_flag = 'Yes' THEN 1 ELSE 0 END) AS parked_vehicle_flag_yes_count,
+                        SUM(CASE WHEN c.parking_lot_flag = 'Yes' THEN 1 ELSE 0 END) AS parking_lot_flag_yes_count,
+                        SUM(CASE WHEN c.pedestrian_flag = 'Yes' THEN 1 ELSE 0 END) AS pedestrian_flag_yes_count,
+                        AVG(total_victims) as average_victims                       
+                    FROM crashes AS c
+                    GROUP BY c.municipality_name''')
     
     conn.commit()
     conn.close()
@@ -146,21 +172,21 @@ def create_crashes_per_100k():
     """calculate crashes per 100k in each municipality"""
     conn = get_connection()
     cursor = conn.cursor()
-    # cursor.execute("DROP VIEW IF EXISTS crashes_per_100k")
     cursor.execute("DROP TABLE IF EXISTS crashes_per_100k")
     cursor.execute("""
                    CREATE TABLE crashes_per_100k AS
                     SELECT 
                         c.municipality_name,
                         COUNT(*) AS total_crashes,
-                        (CASE WHEN c.animal_flag = 'Yes' THEN 1 ELSE 0 END) AS animal_flag_yes_count,
-                        SUM(CASE WHEN c.cyclist_flag = 'Yes' THEN 1 ELSE 0 END) AS cyclist_flag_yes_count,
-                        SUM(CASE WHEN c.heavy_veh_flag = 'Yes' THEN 1 ELSE 0 END) AS heavy_veh_flag_yes_count,
-                        SUM(CASE WHEN c.intersection_crash = 'Yes' THEN 1 ELSE 0 END) AS intersection_crash_count,                        
-                        SUM(CASE WHEN c.motorcycle_flag = 'Yes' THEN 1 ELSE 0 END) AS motorcycle_flag_yes_count,  
-                        SUM(CASE WHEN c.parked_vehicle_flag = 'Yes' THEN 1 ELSE 0 END) AS parked_vehicle_flag_yes_count,
-                        SUM(CASE WHEN c.parking_lot_flag = 'Yes' THEN 1 ELSE 0 END) AS parking_lot_flag_yes_count,
-                        SUM(CASE WHEN c.pedestrian_flag = 'Yes' THEN 1 ELSE 0 END) AS pedestrian_flag_yes_count,
+                        SUM(CASE WHEN c.crash_severity = 'CASUALTY CRASH' THEN 1 ELSE 0 END)* 100000.0 / p.total AS casualty_accident_counts,
+                        SUM(CASE WHEN c.animal_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS animal_flag_yes_count,
+                        SUM(CASE WHEN c.cyclist_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS cyclist_flag_yes_count,
+                        SUM(CASE WHEN c.heavy_veh_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS heavy_veh_flag_yes_count,
+                        SUM(CASE WHEN c.intersection_crash = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS intersection_crash_count,                        
+                        SUM(CASE WHEN c.motorcycle_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS motorcycle_flag_yes_count,  
+                        SUM(CASE WHEN c.parked_vehicle_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS parked_vehicle_flag_yes_count,
+                        SUM(CASE WHEN c.parking_lot_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS parking_lot_flag_yes_count,
+                        SUM(CASE WHEN c.pedestrian_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS pedestrian_flag_yes_count,
                         AVG(total_victims) as average_victims,
                         p.total AS population,
                         (COUNT(*) * 100000.0 / p.total) AS crashes_per_100k
@@ -171,4 +197,3 @@ def create_crashes_per_100k():
     
     conn.commit()
     conn.close()
-#TODO: the crashes_per_100k table shows counts of crash flags, but not standardized to 100k

@@ -8,6 +8,7 @@ def main():
 
     
     # calculate crashes per 100k in each munipcipality
+    db.create_regional_crash_summaries()
     db.create_crashes_per_100k()
     
 if __name__ == "__main__":

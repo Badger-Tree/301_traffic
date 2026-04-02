@@ -204,7 +204,7 @@ def create_regional_crash_summaries():
                         SUM(CASE WHEN c.parked_vehicle_flag = 'Yes' THEN 1 ELSE 0 END) AS parked_vehicle_flag_yes_count,
                         SUM(CASE WHEN c.parking_lot_flag = 'Yes' THEN 1 ELSE 0 END) AS parking_lot_flag_yes_count,
                         SUM(CASE WHEN c.pedestrian_flag = 'Yes' THEN 1 ELSE 0 END) AS pedestrian_flag_yes_count,
-                        AVG(total_victims) as average_victims                       
+                        SUM(total_victims) as total_victims                       
                     FROM crashes AS c
                     GROUP BY c.municipality''')
     
@@ -228,7 +228,8 @@ def create_crashes_per_100k():
                    CREATE TABLE crashes_per_100k AS
                     SELECT 
                         c.municipality,
-                        SUM(total_crashes) AS total_crashes,
+                        SUM(total_crashes)* 100000.0/ p.total AS crashes_per_100k,
+                        SUM(total_victims)* 100000.0/ p.total as victims_per_100k,
                         SUM(CASE WHEN c.crash_severity = 'CASUALTY CRASH' THEN 1 ELSE 0 END)* 100000.0 / p.total AS casualty_accident_counts,
                         SUM(CASE WHEN c.animal_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS animal_flag_yes_count,
                         SUM(CASE WHEN c.cyclist_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS cyclist_flag_yes_count,
@@ -238,9 +239,7 @@ def create_crashes_per_100k():
                         SUM(CASE WHEN c.parked_vehicle_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS parked_vehicle_flag_yes_count,
                         SUM(CASE WHEN c.parking_lot_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS parking_lot_flag_yes_count,
                         SUM(CASE WHEN c.pedestrian_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS pedestrian_flag_yes_count,
-                        AVG(total_victims) as average_victims,
-                        p.total AS population,
-                        (COUNT(*) * 100000.0 / p.total) AS crashes_per_100k
+                        p.total AS population
                     FROM crashes AS c
                     JOIN population AS p
                     ON UPPER(c.municipality) = p.municipality

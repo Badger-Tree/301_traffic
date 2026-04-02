@@ -3,19 +3,29 @@ import matplotlib.pyplot as plt
 from db import get_crashes, get_populations, get_crashes_per_municipality,get_crashes_per_100k
 
 
+############################
+# exploratory data analysis#
+############################ 
+
 raw_crashes = get_crashes()
 
-print(raw_crashes.describe(include='all'))
-# print(raw_crashes.head(5))
+print(raw_crashes.shape)
 
-# print(f"shape: {raw_crashes.shape}")
-# aggregated = raw_crashes.groupby(by="municipality_name")
-# print(aggregated.head(10))
-
-
-# crashes_per_municipality.sort_values("total_crashes", ascending=False).head(10).plot.bar( x="municipality_name", y = "total_crashes")
-# plt.xlabel("Municipality")
-# plt.ylabel("Number of Crashes")
-# plt.title("Crashes per Municipality")
-# plt.show()
-
+def get_summmary(df):
+    """gets summary info for each column"""
+    summary_data = []    
+    for col in df.columns:
+        col_dtype = df[col].dtype
+        num_nulls = df[col].isnull().sum()
+        num_non_nulls = df[col].notnull().sum()
+        num_distinct_values = df[col].nunique()
+        summary_data.append({
+            'column_name': col,
+            'column_dtype': col_dtype,
+            'num_nulls': num_nulls,
+            'num_non_nulls': num_non_nulls,
+            'num_of_distinct_values': num_distinct_values}
+        )
+    return summary_data
+summary_df = pd.DataFrame(get_summmary(raw_crashes))
+print(summary_df)

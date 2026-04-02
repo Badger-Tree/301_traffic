@@ -255,3 +255,9 @@ def get_crashes_per_100k():
     df = pd.read_sql("SELECT * FROM crashes_per_100k", conn)
     conn.close()
     return df
+
+def export_crashes():
+    conn = get_connection()
+    df = pd.read_sql_query("SELECT * from crashes", conn)
+    df.to_csv("output_tables/crashes.csv",index=False)
+    conn.close()

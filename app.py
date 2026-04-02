@@ -12,5 +12,9 @@ def main():
         db.create_regional_crash_summaries()
         db.create_crashes_per_100k()
     
+    
+    setup()
+    create_aggregations()
+    
 if __name__ == "__main__":
     main()

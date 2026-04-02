@@ -16,39 +16,35 @@ def create_crash_table():
     cursor = conn.cursor()
     cursor.execute("DROP TABLE IF EXISTS crashes")
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS crashes (
-        crash_breakdown_2 TEXT,
-        date_of_loss_year INTEGER,
-        animal_flag TEXT,
-        crash_severity TEXT,
-        cyclist_flag TEXT,
-        day_of_week TEXT,
-        derived_crash_config TEXT,
-        heavy_veh_flag TEXT,
-        intersection_crash TEXT,
-        month_of_year INTEGER,
-        motorcycle_flag TEXT,
-        municipality_name_ifnull TEXT,
-        parked_vehicle_flag TEXT,
-        parking_lot_flag TEXT,
-        pedestrian_flag TEXT,
-        region TEXT,
-        street_full_name_ifnull TEXT,
-        time_category TEXT,
-        municipality_name TEXT,
-        road_location_description TEXT,
-        street_full_name TEXT,
-        metric_selector TEXT,
-        total_crashes INTEGER,
-        total_victims INTEGER,
-        latitude REAL,
-        longitude REAL,
-        mid_block_crash TEXT,
-        municipality_with_boundary TEXT,
-        cross_street_full_name TEXT
-    )
-    """)
-    
+                CREATE TABLE IF NOT EXISTS crashes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    date_of_loss_year INTEGER,
+                    crash_severity TEXT,
+                    cyclist_flag TEXT,
+                    day_of_week TEXT,
+                    derived_crash_config TEXT,
+                    heavy_veh_flag TEXT,
+                    intersection_crash TEXT,
+                    month_of_year INTEGER,
+                    motorcycle_flag TEXT,
+                    parked_vehicle_flag TEXT,
+                    parking_lot_flag TEXT,
+                    pedestrian_flag TEXT,
+                    region TEXT,
+                    time_category TEXT,
+                    municipality TEXT,
+                    road_location_description TEXT,
+                    street_full_name TEXT,
+                    total_crashes INTEGER,
+                    total_victims INTEGER,
+                    animal_flag TEXT,
+                    cross_street_full_name TEXT,
+                    latitude REAL,
+                    longitude REAL,
+                    mid_block_crash TEXT
+                )
+            """)
+            
     conn.commit()
     conn.close()
 
@@ -59,7 +55,7 @@ def import_crash_csv(file_path):
     
     with open(file_path, 'r', newline='', encoding='utf-8-sig') as csvfile:
         reader = csv.DictReader(csvfile)
-        reader.fieldnames = [h.strip() for h in reader.fieldnames]  # strip BOM/whitespace
+        reader.fieldnames = [h.strip() for h in reader.fieldnames]
 
         for row in reader:
             total_crashes = int(row['Total Crashes']) if row['Total Crashes'] else None
@@ -69,28 +65,58 @@ def import_crash_csv(file_path):
 
             cursor.execute('''
                 INSERT INTO crashes (
-                    crash_breakdown_2, date_of_loss_year, animal_flag, crash_severity,
-                    cyclist_flag, day_of_week, derived_crash_config, heavy_veh_flag,
-                    intersection_crash, month_of_year, motorcycle_flag, municipality_name_ifnull,
-                    parked_vehicle_flag, parking_lot_flag, pedestrian_flag, region,
-                    street_full_name_ifnull, time_category, municipality_name,
-                    road_location_description, street_full_name, metric_selector,
-                    total_crashes, total_victims, latitude, longitude,
-                    mid_block_crash, municipality_with_boundary, cross_street_full_name
+                    date_of_loss_year,
+                    crash_severity,
+                    cyclist_flag,
+                    day_of_week,
+                    derived_crash_config,
+                    heavy_veh_flag,
+                    intersection_crash,
+                    month_of_year,
+                    motorcycle_flag,
+                    parked_vehicle_flag,
+                    parking_lot_flag,
+                    pedestrian_flag,
+                    region,
+                    time_category,
+                    municipality,
+                    road_location_description,
+                    street_full_name,
+                    total_crashes,
+                    total_victims,
+                    animal_flag,
+                    cross_street_full_name,
+                    latitude,
+                    longitude,
+                    mid_block_crash
                 ) VALUES (
-                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                 )
             ''', [
-                row['Crash Breakdown 2'], row['Date Of Loss Year'], row['Animal Flag'],
-                row['Crash Severity'], row['Cyclist Flag'], row['Day Of Week'],
-                row['Derived Crash Configuration'], row['Heavy Veh Flag'],
-                row['Intersection Crash'], row['Month Of Year'], row['Motorcycle Flag'],
-                row['Municipality Name (ifnull)'], row['Parked Vehicle Flag'], row['Parking Lot Flag'],
-                row['Pedestrian Flag'], row['Region'], row['Street Full Name (ifnull)'],
-                row['Time Category'], row['Municipality Name'], row['Road Location Description'],
-                row['Street Full Name'], row['Metric Selector'], total_crashes,
-                total_victims, latitude, longitude, row['Mid Block Crash'],
-                row['Municipality With Boundary'], row['Cross Street Full Name']
+                row['Date Of Loss Year'],
+                row['Crash Severity'], 
+                row['Cyclist Flag'], 
+                row['Day Of Week'],
+                row['Derived Crash Configuration'], 
+                row['Heavy Veh Flag'],
+                row['Intersection Crash'], 
+                row['Month Of Year'], 
+                row['Motorcycle Flag'],
+                row['Parked Vehicle Flag'], 
+                row['Parking Lot Flag'],
+                row['Pedestrian Flag'], 
+                row['Region'], 
+                row['Time Category'], 
+                row['Municipality Name'], 
+                row['Road Location Description'],
+                row['Street Full Name'], 
+                total_crashes,
+                total_victims, 
+                row['Animal Flag'],
+                row['Cross Street Full Name'],
+                latitude, 
+                longitude,
+                row['Mid Block Crash']   
             ])
     
     conn.commit()
@@ -167,7 +193,7 @@ def create_regional_crash_summaries():
     cursor.execute('''
                    CREATE TABLE crashes_per_municipality AS
                     SELECT 
-                        c.municipality_name,
+                        c.municipality,
                         COUNT(*) AS total_crashes,
                         SUM(CASE WHEN c.crash_severity = 'CASUALTY CRASH' THEN 1 ELSE 0 END) AS casualty_accident_counts,
                         SUM(CASE WHEN c.animal_flag = 'Yes' THEN 1 ELSE 0 END) AS animal_flag_yes_count,
@@ -180,7 +206,7 @@ def create_regional_crash_summaries():
                         SUM(CASE WHEN c.pedestrian_flag = 'Yes' THEN 1 ELSE 0 END) AS pedestrian_flag_yes_count,
                         AVG(total_victims) as average_victims                       
                     FROM crashes AS c
-                    GROUP BY c.municipality_name''')
+                    GROUP BY c.municipality''')
     
     conn.commit()
     conn.close()
@@ -201,7 +227,7 @@ def create_crashes_per_100k():
     cursor.execute("""
                    CREATE TABLE crashes_per_100k AS
                     SELECT 
-                        c.municipality_name,
+                        c.municipality,
                         COUNT(*) AS total_crashes,
                         SUM(CASE WHEN c.crash_severity = 'CASUALTY CRASH' THEN 1 ELSE 0 END)* 100000.0 / p.total AS casualty_accident_counts,
                         SUM(CASE WHEN c.animal_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS animal_flag_yes_count,
@@ -217,8 +243,8 @@ def create_crashes_per_100k():
                         (COUNT(*) * 100000.0 / p.total) AS crashes_per_100k
                     FROM crashes AS c
                     JOIN population AS p
-                    ON UPPER(c.municipality_name) = p.municipality
-                    GROUP BY c.municipality_name, p.total""")
+                    ON UPPER(c.municipality) = p.municipality
+                    GROUP BY c.municipality, p.total""")
     
     conn.commit()
     conn.close()

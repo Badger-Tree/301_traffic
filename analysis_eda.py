@@ -33,7 +33,7 @@ day_order = [
     "Sunday"
 ]
 
-crashes_by_day = raw_crashes["day_of_week"].value_counts().reindex(day_order)
+crashes_by_day = raw_crashes.groupby("day_of_week")["total_crashes"].sum().reindex(day_order)
 
 crashes_by_day.plot(kind="bar")
 
@@ -47,12 +47,12 @@ plt.show()
 
 
 #crashes by month
-month_order = {
+month_order = [
     "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
-}
+]
 
 #counting crashes per month
-crashes_by_month = raw_crashes["month_of_year"].value_counts().reindex(month_order, fill_value=0)
+crashes_by_month = raw_crashes.groupby("month_of_year")["total_crashes"].sum().reindex(month_order, fill_value=0)
 
 #just made shorter labels for graph
 short_labels = [

@@ -194,7 +194,7 @@ def create_regional_crash_summaries():
                    CREATE TABLE crashes_per_municipality AS
                     SELECT 
                         c.municipality,
-                        COUNT(*) AS total_crashes,
+                        SUM(total_crashes) AS total_crashes,
                         SUM(CASE WHEN c.crash_severity = 'CASUALTY CRASH' THEN 1 ELSE 0 END) AS casualty_accident_counts,
                         SUM(CASE WHEN c.animal_flag = 'Yes' THEN 1 ELSE 0 END) AS animal_flag_yes_count,
                         SUM(CASE WHEN c.cyclist_flag = 'Yes' THEN 1 ELSE 0 END) AS cyclist_flag_yes_count,
@@ -228,7 +228,7 @@ def create_crashes_per_100k():
                    CREATE TABLE crashes_per_100k AS
                     SELECT 
                         c.municipality,
-                        COUNT(*) AS total_crashes,
+                        SUM(total_crashes) AS total_crashes,
                         SUM(CASE WHEN c.crash_severity = 'CASUALTY CRASH' THEN 1 ELSE 0 END)* 100000.0 / p.total AS casualty_accident_counts,
                         SUM(CASE WHEN c.animal_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS animal_flag_yes_count,
                         SUM(CASE WHEN c.cyclist_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS cyclist_flag_yes_count,
@@ -255,3 +255,9 @@ def get_crashes_per_100k():
     df = pd.read_sql("SELECT * FROM crashes_per_100k", conn)
     conn.close()
     return df
+
+def export_crashes():
+    conn = get_connection()
+    df = pd.read_sql_query("SELECT * from crashes", conn)
+    df.to_csv("output_tables/crashes.csv",index=False)
+    conn.close()

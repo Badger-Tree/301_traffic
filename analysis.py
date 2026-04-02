@@ -19,3 +19,57 @@ print(raw_crashes.describe(include='all'))
 # plt.title("Crashes per Municipality")
 # plt.show()
 
+#crashes by day
+
+raw_crashes["day_of_week"] = raw_crashes["day_of_week"].str.strip().str.title()
+
+day_order = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+]
+
+crashes_by_day = raw_crashes["day_of_week"].value_counts().reindex(day_order)
+
+crashes_by_day.plot(kind="bar")
+
+plt.title("Crashes by Day of the Week")
+plt.xlabel("Day")
+plt.ylabel("Number of Crashes")
+
+plt.tight_layout()
+
+plt.show()
+
+
+#crashes by month
+month_order = {
+    "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
+}
+
+#counting crashes per month
+crashes_by_month = raw_crashes["month_of_year"].value_counts().reindex(month_order, fill_value=0)
+
+#just made shorter labels for graph
+short_labels = [
+    "Jan","Feb","Mar","Apr","May","Jun",
+    "Jul","Aug","Sep","Oct","Nov","Dec"
+]
+
+crashes_by_month.index = short_labels
+
+crashes_by_month.plot(kind="bar")
+
+plt.title("Crashes by Month")
+plt.xlabel("Month")
+plt.ylabel("Number of Crashes")
+
+plt.tight_layout()
+
+plt.show()
+
+

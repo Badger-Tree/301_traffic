@@ -66,3 +66,22 @@ plt.ylabel("Number of Crashes")
 plt.xticks(range(len(time_order)), time_order)
 plt.tight_layout()
 plt.show()
+
+
+
+# ##########################
+# # crash severity (property dmg + casualty crash) vs month#
+# ##########################
+
+severity_vs_month = (
+    raw_crashes.groupby(["month_of_year", "crash_severity"]).size().unstack().reindex(month_order)
+)
+
+severity_vs_month.plot()
+
+plt.title("Crash Severity vs Month")
+plt.xlabel("Month")
+plt.ylabel("Number of Crashes")
+
+plt.tight_layout()
+plt.show()

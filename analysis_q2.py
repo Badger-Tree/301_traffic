@@ -198,45 +198,45 @@ flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle
 
 
 
-# ###################
-# #crashes by time #
-# ###################
+###################
+#crashes by time #
+###################
 
-# time_order = [
-#     "00:00-02:59",
-#     "03:00-05:59",
-#     "06:00-08:59",
-#     "09:00-11:59",
-#     "12:00-14:59",
-#     "15:00-17:59",
-#     "18:00-20:59",
-#     "21:00-23:59"
-# ]
+time_order = [
+    "00:00-02:59",
+    "03:00-05:59",
+    "06:00-08:59",
+    "09:00-11:59",
+    "12:00-14:59",
+    "15:00-17:59",
+    "18:00-20:59",
+    "21:00-23:59"
+]
 
-# crashes_by_time = raw_crashes.groupby("time_category")["total_crashes"].sum().reindex(time_order, fill_value=0)
+crashes_by_time = raw_crashes.groupby("time_category")["total_crashes"].sum().reindex(time_order, fill_value=0)
 
-# crashes_by_time.index = time_order
-# crashes_by_time.plot(kind="bar",color = ["blue"])
-# plt.title("Crashes by Time of Day")
-# plt.xlabel("Time Category")
-# plt.ylabel("Number of Crashes")
-# plt.tight_layout()
-# plt.show()
+crashes_by_time.index = time_order
+crashes_by_time.plot(kind="bar",color = ["blue"])
+plt.title("Crashes by Time of Day")
+plt.xlabel("Time Category")
+plt.ylabel("Number of Crashes")
+plt.tight_layout()
+plt.show()
 
 
-# ##################
-# #victims by time #
-# ##################
+##################
+#victims by time #
+##################
 
-# victims_by_time = raw_crashes.groupby("time_category")["total_victims"].sum().reindex(time_order, fill_value=0)
+victims_by_time = raw_crashes.groupby("time_category")["total_victims"].sum().reindex(time_order, fill_value=0)
 
-# victims_by_time.index = time_order
-# victims_by_time.plot(kind="bar",color = ["green"])
-# plt.title("Victims by Time of Day")
-# plt.xlabel("Time Category")
-# plt.ylabel("Number of Victims")
-# plt.tight_layout()
-# plt.show()
+victims_by_time.index = time_order
+victims_by_time.plot(kind="bar",color = ["green"])
+plt.title("Victims by Time of Day")
+plt.xlabel("Time Category")
+plt.ylabel("Number of Victims")
+plt.tight_layout()
+plt.show()
 
 
 
@@ -249,9 +249,9 @@ raw_crashes["month_of_year"] = raw_crashes["month_of_year"].str.strip().str.uppe
 
 
 
-# ##########################
-# # crash type vs month #
-# ##########################
+#######################
+# crash type vs month #
+#######################
 results = {}
 
 for flag in flag_cols:
@@ -271,9 +271,9 @@ plt.tight_layout()
 plt.show()
 
 
-# ##########################
-# # accident type vs time of day#
-# ##########################
+################################
+# accident type vs time of day #
+################################
 
 
 time_order = sorted(raw_crashes["time_category"].unique())
@@ -300,20 +300,38 @@ plt.tight_layout()
 plt.show()
 
 
+# #############################
+# # crash type vs day of week #
+# #############################
 
-# ##########################
-# # crash severity (property dmg + casualty crash) vs month#
-# ##########################
+# day_order = [
+#     "MONDAY",
+#     "TUESDAY",
+#     "WEDNESDAY",
+#     "THURSDAY",
+#     "FRIDAY",
+#     "SATURDAY",
+#     "SUNDAY"
+# ]
 
-severity_vs_month = (
-    raw_crashes.groupby(["month_of_year", "crash_severity"]).size().unstack().reindex(month_order)
-)
+# flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle_flag", "parked_vehicle_flag", "parking_lot_flag", "pedestrian_flag", "animal_flag"]
 
-severity_vs_month.plot()
+# day_results = {}
 
-plt.title("Crash Severity vs Month")
-plt.xlabel("Month")
-plt.ylabel("Number of Crashes")
+# for flag in flag_cols:
+#     counts = (
+#         raw_crashes[raw_crashes[flag] == "Yes"].groupby("day_of_week").size().reindex(day_order, fill_value=0)
+#     )
+#     day_results[flag] = counts
 
-plt.tight_layout()
-plt.show()
+# day_vs_type_df = pd.DataFrame(day_results)
+
+# day_vs_type_df.plot(figsize=(10, 6), marker='o')
+
+# plt.title("Crash Type vs Day of Week")
+# plt.ylabel("Number of Crashes")
+# plt.xlabel("")
+# plt.xticks(range(len(day_order)), day_order)
+# plt.tight_layout()
+# plt.show()
+

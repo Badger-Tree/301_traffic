@@ -12,9 +12,12 @@ def main():
         # calculate crashes per 100k in each munipcipality
         db.create_crashes_per_100k()
         
-    
+    def export_to_csv():
+        db.export_crashes()
+        db.export_crashes_per_100k()
     setup()
     create_aggregations()
+    export_to_csv()
     
 if __name__ == "__main__":
     main()

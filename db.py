@@ -204,7 +204,6 @@ def create_crashes_per_100k():
     """calculate crashes per 100k in each municipality"""
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DROP TABLE IF EXISTS crashes_per_municipality")
     cursor.execute("DROP TABLE IF EXISTS crashes_per_100k")
     cursor.execute("""
                    CREATE TABLE crashes_per_100k AS
@@ -234,4 +233,9 @@ def export_crashes():
     conn = get_connection()
     df = pd.read_sql_query("SELECT * from crashes", conn)
     df.to_csv("output_tables/crashes.csv",index=False)
+    conn.close()
+def export_crashes_per_100k():
+    conn = get_connection()
+    df = pd.read_sql_query("SELECT * from crashes_per_100k", conn)
+    df.to_csv("output_tables/crashes_per_100k.csv",index=False)
     conn.close()

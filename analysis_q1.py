@@ -66,8 +66,6 @@ plt.title("Rate of Crashes per 100k by Municipality (Top 10)")
 plt.tight_layout()
 plt.show()
 
-crashes_per_100k.to_csv("output_tables/crashes_per_100k.csv", index=False)
-
 
 ####################################
 # victims per 100k by municipality #

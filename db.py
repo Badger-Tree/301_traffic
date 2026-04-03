@@ -2,7 +2,7 @@ import sqlite3
 import csv
 import pandas as pd
 
-DB_NAME = 'database.db'  # your SQLite database file
+DB_NAME = 'database.db'
 
 # Connection Helper
 def get_connection():
@@ -177,11 +177,26 @@ def import_population_csv(file_path):
     conn.commit()
     conn.close()
     
+def create_refined_population():
+    """filters the population table so that only municipalities present in crashes are included"""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DROP TABLE IF EXISTS filtered_population")
+    cursor.execute('''
+                   CREATE TABLE filtered_population AS
+                   SELECT * 
+                   FROM population as p
+                   WHERE p.municipality IN 
+                   (SELECT municipality from crashes)
+                   ''')
+    conn.commit()
+    conn.close()
+    
 # return population table
-def get_populations():
+def get_filtered_populations():
     """this method returns the population table as a dataframe"""
     conn = get_connection()
-    df = pd.read_sql("SELECT * FROM population", conn)
+    df = pd.read_sql("SELECT * FROM filtered_population", conn)
     conn.close()
     return df
 
@@ -195,15 +210,6 @@ def create_regional_crash_summaries():
                     SELECT 
                         c.municipality,
                         SUM(total_crashes) AS total_crashes,
-                        SUM(CASE WHEN c.crash_severity = 'CASUALTY CRASH' THEN 1 ELSE 0 END) AS casualty_accident_counts,
-                        SUM(CASE WHEN c.animal_flag = 'Yes' THEN 1 ELSE 0 END) AS animal_flag_yes_count,
-                        SUM(CASE WHEN c.cyclist_flag = 'Yes' THEN 1 ELSE 0 END) AS cyclist_flag_yes_count,
-                        SUM(CASE WHEN c.heavy_veh_flag = 'Yes' THEN 1 ELSE 0 END) AS heavy_veh_flag_yes_count,
-                        SUM(CASE WHEN c.intersection_crash = 'Yes' THEN 1 ELSE 0 END) AS intersection_crash_count,                        
-                        SUM(CASE WHEN c.motorcycle_flag = 'Yes' THEN 1 ELSE 0 END) AS motorcycle_flag_yes_count,  
-                        SUM(CASE WHEN c.parked_vehicle_flag = 'Yes' THEN 1 ELSE 0 END) AS parked_vehicle_flag_yes_count,
-                        SUM(CASE WHEN c.parking_lot_flag = 'Yes' THEN 1 ELSE 0 END) AS parking_lot_flag_yes_count,
-                        SUM(CASE WHEN c.pedestrian_flag = 'Yes' THEN 1 ELSE 0 END) AS pedestrian_flag_yes_count,
                         SUM(total_victims) as total_victims                       
                     FROM crashes AS c
                     GROUP BY c.municipality''')
@@ -230,18 +236,9 @@ def create_crashes_per_100k():
                         c.municipality,
                         SUM(total_crashes)* 100000.0/ p.total AS crashes_per_100k,
                         SUM(total_victims)* 100000.0/ p.total as victims_per_100k,
-                        SUM(CASE WHEN c.crash_severity = 'CASUALTY CRASH' THEN 1 ELSE 0 END)* 100000.0 / p.total AS casualty_accident_counts,
-                        SUM(CASE WHEN c.animal_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS animal_flag_yes_count,
-                        SUM(CASE WHEN c.cyclist_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS cyclist_flag_yes_count,
-                        SUM(CASE WHEN c.heavy_veh_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS heavy_veh_flag_yes_count,
-                        SUM(CASE WHEN c.intersection_crash = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS intersection_crash_count,                        
-                        SUM(CASE WHEN c.motorcycle_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS motorcycle_flag_yes_count,  
-                        SUM(CASE WHEN c.parked_vehicle_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS parked_vehicle_flag_yes_count,
-                        SUM(CASE WHEN c.parking_lot_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS parking_lot_flag_yes_count,
-                        SUM(CASE WHEN c.pedestrian_flag = 'Yes' THEN 1 ELSE 0 END)* 100000.0 / p.total AS pedestrian_flag_yes_count,
                         p.total AS population
                     FROM crashes AS c
-                    JOIN population AS p
+                    JOIN filtered_population AS p
                     ON UPPER(c.municipality) = p.municipality
                     GROUP BY c.municipality, p.total""")
     

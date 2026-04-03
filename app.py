@@ -10,7 +10,6 @@ def main():
 
     def create_aggregations():
         # calculate crashes per 100k in each munipcipality
-        db.create_regional_crash_summaries()
         db.create_crashes_per_100k()
         
     

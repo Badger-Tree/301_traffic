@@ -200,40 +200,18 @@ def get_filtered_populations():
     conn.close()
     return df
 
-def create_regional_crash_summaries():
-    """calculate summaries of crash data according to municipality"""
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("DROP TABLE IF EXISTS crashes_per_municipality")
-    cursor.execute('''
-                   CREATE TABLE crashes_per_municipality AS
-                    SELECT 
-                        c.municipality,
-                        SUM(total_crashes) AS total_crashes,
-                        SUM(total_victims) as total_victims                       
-                    FROM crashes AS c
-                    GROUP BY c.municipality''')
-    
-    conn.commit()
-    conn.close()
-    
-def get_crashes_per_municipality():
-    """this method returns the crash data aggregated by municipality as a dataframe"""
-    conn = get_connection()
-    df = pd.read_sql("SELECT * FROM crashes_per_municipality", conn)
-    conn.close()
-    return df
-
-# calculate municipal crashes
 def create_crashes_per_100k():
     """calculate crashes per 100k in each municipality"""
     conn = get_connection()
     cursor = conn.cursor()
+    cursor.execute("DROP TABLE IF EXISTS crashes_per_municipality")
     cursor.execute("DROP TABLE IF EXISTS crashes_per_100k")
     cursor.execute("""
                    CREATE TABLE crashes_per_100k AS
                     SELECT 
                         c.municipality,
+                        SUM(total_crashes) AS total_crashes,
+                        SUM(total_victims) as total_victims,
                         SUM(total_crashes)* 100000.0/ p.total AS crashes_per_100k,
                         SUM(total_victims)* 100000.0/ p.total as victims_per_100k,
                         p.total AS population
@@ -241,7 +219,7 @@ def create_crashes_per_100k():
                     JOIN filtered_population AS p
                     ON UPPER(c.municipality) = p.municipality
                     GROUP BY c.municipality, p.total""")
-    
+
     conn.commit()
     conn.close()
 

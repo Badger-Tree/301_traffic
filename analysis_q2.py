@@ -4,11 +4,11 @@ from db import get_crashes, get_filtered_populations
 
 
 raw_crashes = get_crashes()
-raw_populations = get_filtered_populations()
+#raw_populations = get_filtered_populations()
 # ##################
 # #crashes by flag #
 # ##################
-# flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle_flag", "parked_vehicle_flag", "parking_lot_flag","pedestrian_flag" ]
+flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle_flag", "parked_vehicle_flag", "parking_lot_flag","pedestrian_flag" ]
 
 # # melt flips the table around so each flag/outcome is a row
 # # each row is now: flag, yes/no, count
@@ -53,67 +53,67 @@ raw_populations = get_filtered_populations()
 ##################
 #victims by flag #
 ##################
-flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle_flag", "parked_vehicle_flag", "parking_lot_flag","pedestrian_flag" ]
+# flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle_flag", "parked_vehicle_flag", "parking_lot_flag","pedestrian_flag" ]
 
-df_long = raw_crashes.melt(
-    id_vars="total_victims",
-    value_vars=flag_cols,
-    var_name="flag",
-    value_name="value"
-)
-df_grouped = (
-    df_long.groupby(["flag", "value"])["total_victims"]
-    .sum()
-    .unstack()
-)
-#this just flips the order of yes/no in stack because I thought it was more readable
-df_grouped = df_grouped[['Yes', 'No']]
+# df_long = raw_crashes.melt(
+#     id_vars="total_victims",
+#     value_vars=flag_cols,
+#     var_name="flag",
+#     value_name="value"
+# )
+# df_grouped = (
+#     df_long.groupby(["flag", "value"])["total_victims"]
+#     .sum()
+#     .unstack()
+# )
+# #this just flips the order of yes/no in stack because I thought it was more readable
+# df_grouped = df_grouped[['Yes', 'No']]
 
-# Plot stacked bar
-df_grouped.plot(kind="bar", stacked=True,color=["green", "lightgrey"])
-plt.title("Victims by Flag (Yes vs No)")
-plt.ylabel("Total Victims")
-plt.xlabel("Accident Flag")
-plt.tight_layout()
-plt.show()
+# # Plot stacked bar
+# df_grouped.plot(kind="bar", stacked=True,color=["green", "lightgrey"])
+# plt.title("Victims by Flag (Yes vs No)")
+# plt.ylabel("Total Victims")
+# plt.xlabel("Accident Flag")
+# plt.tight_layout()
+# plt.show()
 
 
 
-################################
-#frequency of flags in crashes #
-################################
-flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle_flag", "parked_vehicle_flag", "parking_lot_flag","pedestrian_flag" ]
+# ################################
+# #frequency of flags in crashes #
+# ################################
+# flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle_flag", "parked_vehicle_flag", "parking_lot_flag","pedestrian_flag" ]
 
-yes_counts = {
-    col: raw_crashes.loc[raw_crashes[col] == "Yes", "total_crashes"].sum()
-    for col in flag_cols
-}
-yes_series = pd.Series(yes_counts)
+# yes_counts = {
+#     col: raw_crashes.loc[raw_crashes[col] == "Yes", "total_crashes"].sum()
+#     for col in flag_cols
+# }
+# yes_series = pd.Series(yes_counts)
 
-yes_series.sort_values().plot(kind="bar", figsize=(8,5), color = ["blue"])
+# yes_series.sort_values().plot(kind="bar", figsize=(8,5), color = ["blue"])
 
-plt.ylabel("Total Crashes")
-plt.title("Crashes by Flag (Yes Only)")
-plt.tight_layout()
-plt.show()
+# plt.ylabel("Total Crashes")
+# plt.title("Crashes by Flag (Yes Only)")
+# plt.tight_layout()
+# plt.show()
 
-###################################
-#frequency of flags in casualties #
-###################################
-flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle_flag", "parked_vehicle_flag", "parking_lot_flag","pedestrian_flag" ]
+# ###################################
+# #frequency of flags in casualties #
+# ###################################
+# flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle_flag", "parked_vehicle_flag", "parking_lot_flag","pedestrian_flag" ]
 
-yes_counts = {
-    col: raw_crashes.loc[raw_crashes[col] == "Yes", "total_victims"].sum()
-    for col in flag_cols
-}
-yes_series = pd.Series(yes_counts)
+# yes_counts = {
+#     col: raw_crashes.loc[raw_crashes[col] == "Yes", "total_victims"].sum()
+#     for col in flag_cols
+# }
+# yes_series = pd.Series(yes_counts)
 
-yes_series.sort_values().plot(kind="bar", figsize=(8,5), color = ["green"])
+# yes_series.sort_values().plot(kind="bar", figsize=(8,5), color = ["green"])
 
-plt.ylabel("Total Victims")
-plt.title("Victims by Flag (Yes Only)")
-plt.tight_layout()
-plt.show()
+# plt.ylabel("Total Victims")
+# plt.title("Victims by Flag (Yes Only)")
+# plt.tight_layout()
+# plt.show()
 
 # #################
 # #crashes by day #
@@ -238,3 +238,82 @@ plt.show()
 # plt.tight_layout()
 # plt.show()
 
+
+
+month_order = [
+    "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
+]
+
+#to keep format consistent
+raw_crashes["month_of_year"] = raw_crashes["month_of_year"].str.strip().str.upper()
+
+
+
+# ##########################
+# # crash type vs month #
+# ##########################
+results = {}
+
+for flag in flag_cols:
+    counts = (
+        raw_crashes[raw_crashes[flag] == "Yes"].groupby("month_of_year").size().reindex(month_order, fill_value=0)
+    )
+
+    results[flag] = counts
+
+crash_type_vs_month = pd.DataFrame(results)
+crash_type_vs_month.plot()
+
+plt.title("Crash Type vs Month")
+plt.xlabel("Month")
+plt.ylabel("Number of Crashes")
+plt.tight_layout()
+plt.show()
+
+
+# ##########################
+# # accident type vs time of day#
+# ##########################
+
+
+time_order = sorted(raw_crashes["time_category"].unique())
+
+flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle_flag", "parked_vehicle_flag", "parking_lot_flag", "pedestrian_flag", "animal_flag"]
+
+time_results = {}
+
+for flag in flag_cols:
+    counts = (
+        raw_crashes[raw_crashes[flag] == "Yes"].groupby("time_category").size().reindex(time_order, fill_value=0)
+    )
+    time_results[flag] = counts
+
+time_vs_type_df = pd.DataFrame(time_results)
+
+time_vs_type_df.plot(figsize=(10, 6), marker='o')
+
+plt.title("Crash Type vs Time of Day (3-Hr Blocks)")
+plt.xlabel("Time Range")
+plt.ylabel("Number of Crashes")
+plt.xticks(range(len(time_order)), time_order)
+plt.tight_layout()
+plt.show()
+
+
+
+# ##########################
+# # crash severity (property dmg + casualty crash) vs month#
+# ##########################
+
+severity_vs_month = (
+    raw_crashes.groupby(["month_of_year", "crash_severity"]).size().unstack().reindex(month_order)
+)
+
+severity_vs_month.plot()
+
+plt.title("Crash Severity vs Month")
+plt.xlabel("Month")
+plt.ylabel("Number of Crashes")
+
+plt.tight_layout()
+plt.show()

@@ -76,3 +76,66 @@ plt.ylabel("Victims per 100k")
 plt.title("Rate of Victims per 100k by Municipality (Top 10)")
 plt.tight_layout()
 plt.show()
+
+###########################
+# population vs accidents #
+ ##########################
+
+fig, ax = plt.subplots()
+crashes_per_100k.plot.scatter(
+    x="population",
+    y="total_crashes",
+    ax=ax
+)
+
+municipalities_to_label = ["KELOWNA", "KAMLOOPS", "VERNON", "LYTTON"]
+offsets = [(-50,-20), (2,10), (5,15), (10,-15)]
+offset_map = dict(zip(municipalities_to_label, offsets))
+
+labelled_municipalities = crashes_per_100k[crashes_per_100k["municipality"].isin(municipalities_to_label)]
+for _, row in labelled_municipalities.iterrows():
+    dx, dy = offset_map[row["municipality"]]
+    
+    ax.annotate(
+        row["municipality"],
+        (row["population"], row["total_crashes"]),
+        xytext=(dx, dy),
+        textcoords="offset points",
+        arrowprops=dict(arrowstyle='->')
+    )
+
+ax.set_xlabel("Population")
+ax.set_ylabel("Crashes")
+ax.set_title("Crashes vs Population")
+plt.tight_layout()
+plt.show()
+
+##################################
+# population vs rate of accident #
+##################################
+
+fig, ax = plt.subplots()
+
+crashes_per_100k.plot.scatter(
+    x="population",
+    y="crashes_per_100k",
+    ax=ax
+)
+
+municipalities_to_label = ["KELOWNA", "KAMLOOPS", "VERNON", "LYTTON", "CACHE CREEK","PRINCETON"]
+labelled_municipalities = crashes_per_100k[crashes_per_100k["municipality"].isin(municipalities_to_label)]
+for _, row in labelled_municipalities.iterrows():
+    ax.annotate(
+        row["municipality"],
+        (row["population"], row["crashes_per_100k"]),
+        xytext=(1,1),
+        textcoords="offset points",
+        arrowprops=None
+    )
+
+ax.set_xlabel("Population")
+ax.set_ylabel("Crashes per 100k")
+ax.set_title("Crash Rates vs Population")
+
+plt.tight_layout()
+plt.show()

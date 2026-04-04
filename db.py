@@ -234,6 +234,11 @@ def export_crashes():
     df = pd.read_sql_query("SELECT * from crashes", conn)
     df.to_csv("output_tables/crashes.csv",index=False)
     conn.close()
+def export_population():
+    conn = get_connection()
+    df = pd.read_sql_query("SELECT * from filtered_population", conn)
+    df.to_csv("output_tables/population.csv",index=False)
+    conn.close()
 def export_crashes_per_100k():
     conn = get_connection()
     df = pd.read_sql_query("SELECT * from crashes_per_100k", conn)

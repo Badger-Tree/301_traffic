@@ -4,12 +4,14 @@ import pandas as pd
 
 DB_NAME = 'database.db'
 
-# Connection Helper
 def get_connection():
     """Create and return a SQLite database connection."""
     return sqlite3.connect(DB_NAME)
 
-# Crash Table
+##################################################
+# methods to create SQLite tables from CSV files #
+##################################################
+
 def create_crash_table():
     """Create the crashes table if it doesn't exist."""
     conn = get_connection()
@@ -122,16 +124,6 @@ def import_crash_csv(file_path):
     conn.commit()
     conn.close()
 
-# return crash table
-def get_crashes():
-    """this method returns the crashes table as a dataframe"""
-    conn = get_connection()
-    df = pd.read_sql("SELECT * FROM crashes", conn)
-    conn.close()
-    return df
-
-
-# Population Table
 def create_population_table():
     """Create the population table if it doesn't exist."""
     conn = get_connection()
@@ -153,21 +145,25 @@ def import_population_csv(file_path):
     conn = get_connection()
     cursor = conn.cursor()
     
-    create_population_table()  # ensure table exists
+    #this gets a list of municipalities from crashes so we only import the populations we want
+    allowed_municipalities = {}
+    cursor.execute("""SELECT municipality FROM crashes""")
+    allowed_municipalities = {row[0].strip().upper() for row in cursor.fetchall()}
     
     with open(file_path, 'r', newline='', encoding='utf-8-sig') as csvfile:
         reader = csv.reader(csvfile)
         
-        # Skip first 6 metadata rows
         for _ in range(6):
             next(reader)
         
-        # Skip header row
         headers = next(reader)
         
         for row in reader:
             region = row[0].strip()
             municipality = row[1].strip().upper()
+            if municipality not in allowed_municipalities:
+                continue
+            
             total = int(row[5].replace(',', '').strip()) #this is to take the comma out of the popularion field so it can be an integer
             cursor.execute('''
                 INSERT INTO population (region, municipality, total)
@@ -176,37 +172,17 @@ def import_population_csv(file_path):
     
     conn.commit()
     conn.close()
-    
-def create_refined_population():
-    """filters the population table so that only municipalities present in crashes are included"""
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("DROP TABLE IF EXISTS filtered_population")
-    cursor.execute('''
-                   CREATE TABLE filtered_population AS
-                   SELECT * 
-                   FROM population as p
-                   WHERE p.municipality IN 
-                   (SELECT municipality from crashes)
-                   ''')
-    conn.commit()
-    conn.close()
-    
-# return population table
-def get_filtered_populations():
-    """this method returns the population table as a dataframe"""
-    conn = get_connection()
-    df = pd.read_sql("SELECT * FROM filtered_population", conn)
-    conn.close()
-    return df
 
-def create_crashes_per_100k():
+###################################################
+# Method to create analysis table for crash rates #
+###################################################
+def create_crashes_join_population():
     """calculate crashes per 100k in each municipality"""
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DROP TABLE IF EXISTS crashes_per_100k")
+    cursor.execute("DROP TABLE IF EXISTS crashes_join_population")
     cursor.execute("""
-                   CREATE TABLE crashes_per_100k AS
+                   CREATE TABLE crashes_join_population AS
                     SELECT 
                         c.municipality,
                         SUM(total_crashes) AS total_crashes,
@@ -215,19 +191,40 @@ def create_crashes_per_100k():
                         SUM(total_victims)* 100000.0/ p.total as victims_per_100k,
                         p.total AS population
                     FROM crashes AS c
-                    JOIN filtered_population AS p
+                    JOIN population AS p
                     ON UPPER(c.municipality) = p.municipality
                     GROUP BY c.municipality, p.total""")
 
     conn.commit()
     conn.close()
-
-def get_crashes_per_100k():
-    """this method returns the crash data aggregated by population and standardized as a dataframe"""
+    
+######################################################
+# methods to load SQLite tables to Pandas dataframes #
+######################################################
+def get_crashes():
+    """this method returns the crashes table as a dataframe"""
     conn = get_connection()
-    df = pd.read_sql("SELECT * FROM crashes_per_100k", conn)
+    df = pd.read_sql("SELECT * FROM crashes", conn)
     conn.close()
     return df
+
+def get_populations():
+    """this method returns the population table as a dataframe"""
+    conn = get_connection()
+    df = pd.read_sql("SELECT * FROM population", conn)
+    conn.close()
+    return df
+
+def get_crashes_join_population():
+    """this method returns the crash data aggregated by population and standardized as a dataframe"""
+    conn = get_connection()
+    df = pd.read_sql("SELECT * FROM crashes_join_population", conn)
+    conn.close()
+    return df
+
+################################################
+# methods to export SQLite tables to csv files #
+################################################
 
 def export_crashes():
     conn = get_connection()
@@ -236,11 +233,11 @@ def export_crashes():
     conn.close()
 def export_population():
     conn = get_connection()
-    df = pd.read_sql_query("SELECT * from filtered_population", conn)
+    df = pd.read_sql_query("SELECT * from population", conn)
     df.to_csv("output_tables/population.csv",index=False)
     conn.close()
-def export_crashes_per_100k():
+def export_crashes_join_population():
     conn = get_connection()
-    df = pd.read_sql_query("SELECT * from crashes_per_100k", conn)
-    df.to_csv("output_tables/crashes_per_100k.csv",index=False)
+    df = pd.read_sql_query("SELECT * from crashes_join_population", conn)
+    df.to_csv("output_tables/crashes_join_population.csv",index=False)
     conn.close()

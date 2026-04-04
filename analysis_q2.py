@@ -1,10 +1,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from db import get_crashes, get_filtered_populations
+from db import get_crashes, get_populations
 
 
 raw_crashes = get_crashes()
-raw_populations = get_filtered_populations()
+raw_populations = get_populations()
 ##################
 #crashes by flag #
 ##################
@@ -304,14 +304,15 @@ plt.show()
 # crash type vs day of week #
 #############################
 
+raw_crashes["day_of_week"] = raw_crashes["day_of_week"].str.strip().str.title()
 day_order = [
-    "MONDAY",
-    "TUESDAY",
-    "WEDNESDAY",
-    "THURSDAY",
-    "FRIDAY",
-    "SATURDAY",
-    "SUNDAY"
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
 ]
 
 flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle_flag", "parked_vehicle_flag", "parking_lot_flag", "pedestrian_flag", "animal_flag"]

@@ -1,11 +1,11 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from db import get_crashes, get_filtered_populations
+from db import get_crashes, get_populations, get_crashes_join_population
 
 
 raw_crashes = get_crashes()
-raw_populations = get_filtered_populations()
-
+raw_populations = get_populations()
+crashes_join_population = get_crashes_join_population()
 ############################
 # exploratory data analysis#
 ############################ 
@@ -50,3 +50,9 @@ print(f"summary: {pop_summary}")
 
 summary_population_df = pd.DataFrame(get_summmary(raw_populations))
 print(summary_population_df)
+
+###########################
+# crashes_join_population #
+###########################
+summary_crashes_join_population_df = pd.DataFrame(get_summmary(crashes_join_population))
+print(summary_crashes_join_population_df)

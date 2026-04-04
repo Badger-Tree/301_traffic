@@ -23,12 +23,15 @@ def get_summmary(df):
         num_nulls = df[col].isnull().sum()
         num_non_nulls = df[col].notnull().sum()
         num_distinct_values = df[col].nunique()
+        num_empty_strings = (df[col] == '').sum()
         summary_data.append({
             'column_name': col,
             'column_dtype': col_dtype,
             'num_nulls': num_nulls,
             'num_non_nulls': num_non_nulls,
-            'num_of_distinct_values': num_distinct_values}
+            'num_of_distinct_values': num_distinct_values,
+            'num_empty_strings' : num_empty_strings
+            }
         )
     return summary_data
 summary_crash_df = pd.DataFrame(get_summmary(raw_crashes))

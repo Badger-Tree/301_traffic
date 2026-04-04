@@ -18,6 +18,7 @@ def main():
     setup()
     create_aggregations()
     export_to_csv()
+    db.export_population()
     
 if __name__ == "__main__":
     main()

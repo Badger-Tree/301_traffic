@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
-from db import get_crashes, get_populations, get_crashes_per_municipality,get_crashes_per_100k
+from db import get_crashes
 
 
 raw_crashes = get_crashes()

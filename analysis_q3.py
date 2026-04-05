@@ -52,7 +52,7 @@ plt.legend(title="User Type")
 plt.gca().invert_yaxis() 
 
 plt.subplots_adjust(left=0.3) #adjusting for long road names
-plt.show()
+plt.savefig('output_figures/q3/Top 10 Most Dangerous Roads for Pedestrians & Cyclists.png')
 
 
 # ##################################################################
@@ -84,7 +84,7 @@ plt.xlabel("Time of Day")
 plt.ylabel("Number of Crashes")
 plt.legend(title="User Type")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q3/Vulnerable Road User Crashes by Time.png')
 
 
 
@@ -137,8 +137,7 @@ plt.gca().invert_yaxis() #highest count at the top
 
 #adjusting layout of chart so long names like mid-block don't get cut off
 plt.subplots_adjust(left=0.35) 
-plt.show()
-
+plt.savefig('output_figures/q3/Top 10 Most Dangerous Intersections for Pedestrians & Cyclists.png')
 
 
 
@@ -164,7 +163,7 @@ plt.title("Total Number of Victims by Crash Type")
 plt.xlabel("Crash Category")
 plt.ylabel("Total Number of People")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q3/Total Number of Victims by Crash Type.png')
 
 
 
@@ -202,8 +201,7 @@ plt.xlabel("Accident Location")
 plt.ylabel("Number of Crashes")
 plt.legend(title="User Type")
 plt.tight_layout()
-plt.show()
-
+plt.savefig('output_figures/q3/Pedestrian & Cyclist Crashes Intersection vs Non-Intersection.png')
 
 
 

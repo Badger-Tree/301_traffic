@@ -1,0 +1,4 @@
+column_name,column_dtype,num_nulls,num_non_nulls,num_of_distinct_values,num_empty_strings
+region,str,0,55,55,0
+municipality,str,0,55,55,0
+total,int64,0,55,55,0

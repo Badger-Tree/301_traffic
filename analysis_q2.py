@@ -38,18 +38,8 @@ plt.title("Crashes by Flag (Yes vs No)")
 plt.ylabel("Total Crashes")
 plt.xlabel("Accident Flag")
 plt.tight_layout()
-plt.show()
 
-## prints yes/no summary for each flag
-flag_dataframes = {}
-for col in flag_cols:
-    df = raw_crashes.groupby(col)["total_crashes"].sum().reset_index()
-    flag_dataframes[col] = df
-
-for col, df in flag_dataframes.items():
-    print(f"\nColumn: {col}")
-    print(df)
-    
+plt.savefig('output_figures/q2/Crashes by Flag (Yes vs No).png')
 #################
 #victims by flag #
 #################
@@ -75,9 +65,7 @@ plt.title("Victims by Flag (Yes vs No)")
 plt.ylabel("Total Victims")
 plt.xlabel("Accident Flag")
 plt.tight_layout()
-plt.show()
-
-
+plt.savefig('output_figures/q2/Victims by Flag (Yes vs No).png')
 
 ################################
 #frequency of flags in crashes #
@@ -95,7 +83,7 @@ yes_series.sort_values().plot(kind="bar", figsize=(8,5), color = ["blue"])
 plt.ylabel("Total Crashes")
 plt.title("Crashes by Flag (Yes Only)")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q2/Crashes by Flag (Yes Only).png')
 
 ###################################
 #frequency of flags in casualties #
@@ -113,7 +101,7 @@ yes_series.sort_values().plot(kind="bar", figsize=(8,5), color = ["green"])
 plt.ylabel("Total Victims")
 plt.title("Victims by Flag (Yes Only)")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q2/Victims by Flag (Yes Only).png')
 
 #################
 #crashes by day #
@@ -137,7 +125,7 @@ plt.title("Crashes by Day of the Week")
 plt.xlabel("Day")
 plt.ylabel("Number of Crashes")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q2/Crashes by Day of the Week.png')
 
 #################
 #victims by day #
@@ -149,7 +137,7 @@ plt.title("Victims by Day of the Week")
 plt.xlabel("Day")
 plt.ylabel("Number of Victims")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q2/Victims by Day of the Week.png')
 
 ###################
 #crashes by month #
@@ -174,8 +162,7 @@ plt.title("Crashes by Month")
 plt.xlabel("Month")
 plt.ylabel("Number of Crashes")
 plt.tight_layout()
-plt.show()
-
+plt.savefig('output_figures/q2/Crashes by Month.png')
 
 ###################
 #victims by month #
@@ -194,9 +181,7 @@ plt.title("Victims by Month")
 plt.xlabel("Month")
 plt.ylabel("Number of Victims")
 plt.tight_layout()
-plt.show()
-
-
+plt.savefig('output_figures/q2/Victims by Month.png')
 
 ###################
 #crashes by time #
@@ -221,8 +206,7 @@ plt.title("Crashes by Time of Day")
 plt.xlabel("Time Category")
 plt.ylabel("Number of Crashes")
 plt.tight_layout()
-plt.show()
-
+plt.savefig('output_figures/q2/Crashes by Time of Day.png')
 
 ##################
 #victims by time #
@@ -236,22 +220,17 @@ plt.title("Victims by Time of Day")
 plt.xlabel("Time Category")
 plt.ylabel("Number of Victims")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q2/Victims by Time of Day.png')
 
-
-
+#######################
+# crash type vs month #
+#######################
 month_order = [
     "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
 ]
 
 #to keep format consistent
 raw_crashes["month_of_year"] = raw_crashes["month_of_year"].str.strip().str.upper()
-
-
-
-#######################
-# crash type vs month #
-#######################
 results = {}
 
 for flag in flag_cols:
@@ -268,13 +247,11 @@ plt.title("Crash Type vs Month")
 plt.xlabel("Month")
 plt.ylabel("Number of Crashes")
 plt.tight_layout()
-plt.show()
-
+plt.savefig('output_figures/q2/Crash Type vs Month.png')
 
 ################################
 # accident type vs time of day #
 ################################
-
 
 time_order = sorted(raw_crashes["time_category"].unique())
 
@@ -297,8 +274,7 @@ plt.xlabel("Time Range")
 plt.ylabel("Number of Crashes")
 plt.xticks(range(len(time_order)), time_order)
 plt.tight_layout()
-plt.show()
-
+plt.savefig('output_figures/q2/Crash Type vs Time of Day (3-Hr Blocks).png')
 
 #############################
 # crash type vs day of week #
@@ -334,5 +310,4 @@ plt.ylabel("Number of Crashes")
 plt.xlabel("")
 plt.xticks(range(len(day_order)), day_order)
 plt.tight_layout()
-plt.show()
-
+plt.savefig('output_figures/q2/Crash Type vs Day of Week.png')

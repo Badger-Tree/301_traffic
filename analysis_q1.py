@@ -16,7 +16,8 @@ plt.xlabel("Municipality")
 plt.ylabel("Total Crashes")
 plt.title("Number of Crashes by Municipality (Top 10)")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q1/Number of Crashes by Municipality.png')
+
 
 #############################
 # victims by municipality   #
@@ -26,7 +27,7 @@ plt.xlabel("Municipality")
 plt.ylabel("Number of Victims")
 plt.title("Number of Victims by Municipality (Top 10)")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q1/Number of Victims by Municipality (Top 10).png')
 
 ###############################
 #municipalities by population #
@@ -41,7 +42,7 @@ ax.tick_params(labelsize=8)
 
 plt.subplots_adjust(left=0.35)
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q1/Populations by Municipality.png')
 
 ########################
 # population histogram #
@@ -53,7 +54,7 @@ ax.set_title("Distribution of Municipality Populations")
 ax.set_ylabel("Population")
 ax.set_xticklabels([""])
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q1/Distribution of Municipality Populations.png')
 
 ###################################
 # crashes per 100k by municipality#
@@ -64,7 +65,7 @@ plt.xlabel("Municipality")
 plt.ylabel("Crashes per 100k")
 plt.title("Rate of Crashes per 100k by Municipality (Top 10)")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q1/Rate of Crashes per 100k by Municipality (Top 10).png')
 
 
 ####################################
@@ -75,7 +76,7 @@ plt.xlabel("Municipality")
 plt.ylabel("Victims per 100k")
 plt.title("Rate of Victims per 100k by Municipality (Top 10)")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q1/Rate of Victims per 100k by Municipality (Top 10).png')
 
 ###########################
 # population vs accidents #
@@ -108,7 +109,7 @@ ax.set_xlabel("Population")
 ax.set_ylabel("Crashes")
 ax.set_title("Crashes vs Population")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q1/Crashes vs Population.png')
 
 ##################################
 # population vs rate of accident #
@@ -138,4 +139,4 @@ ax.set_ylabel("Crashes per 100k")
 ax.set_title("Crash Rates vs Population")
 
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q1/Crash Rates vs Population.png')

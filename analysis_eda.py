@@ -35,7 +35,7 @@ def get_summmary(df):
         )
     return summary_data
 summary_crash_df = pd.DataFrame(get_summmary(raw_crashes))
-print(summary_crash_df)
+summary_crash_df.to_csv("output_tables/summary_crashes.csv",index=False)
 
 ###########################
 # data summary population #
@@ -53,9 +53,11 @@ print(f"summary: {pop_summary}")
 
 summary_population_df = pd.DataFrame(get_summmary(raw_populations))
 print(summary_population_df)
+summary_population_df.to_csv("output_tables/summary_population.csv",index=False)
 
 ###########################
 # crashes_join_population #
 ###########################
 summary_crashes_join_population_df = pd.DataFrame(get_summmary(crashes_join_population))
 print(summary_crashes_join_population_df)
+summary_crashes_join_population_df.to_csv("output_tables/summary_crashes_join_population.csv",index=False)

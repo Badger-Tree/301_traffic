@@ -16,9 +16,9 @@ flag_cols = ["cyclist_flag", "heavy_veh_flag", "intersection_crash", "motorcycle
 raw_crashes["month_of_year"] = raw_crashes["month_of_year"].str.strip().str.upper()
 
 
-# ##########################
+# ################################
 # #top 10 deadliest intersections#
-# ##########################
+# ################################
 
 raw_crashes['intersection_name'] = raw_crashes['street_full_name'] + " @ " + raw_crashes['cross_street_full_name']
 
@@ -32,7 +32,7 @@ plt.xlabel("Number of Crashes")
 plt.ylabel("Intersection")
 plt.gca().invert_yaxis() #first spot at the top
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q4/Top 10 Most Dangerous Intersections.png')
 
 
 
@@ -52,7 +52,7 @@ plt.xlabel("Total Number of Victims")
 plt.ylabel("Road Name")
 plt.gca().invert_yaxis()
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q4/Top 10 Deadliest Roads (Total Victim Count).png')
 
 
 
@@ -74,5 +74,5 @@ plt.xlabel("Municipality")
 plt.ylabel("Number of Crashes")
 plt.legend(title="Severity Type")
 plt.tight_layout()
-plt.show()
+plt.savefig('output_figures/q4/Top 10 Communities by Crash Severity.png')
 

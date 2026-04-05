@@ -1,0 +1,7 @@
+column_name,column_dtype,num_nulls,num_non_nulls,num_of_distinct_values,num_empty_strings
+municipality,str,0,55,55,0
+total_crashes,int64,0,55,54,0
+total_victims,int64,0,55,52,0
+crashes_per_100k,float64,0,55,55,0
+victims_per_100k,float64,0,55,55,0
+population,int64,0,55,55,0
